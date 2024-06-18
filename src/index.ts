@@ -6,31 +6,31 @@ export interface GamepadStateEventMap {
 }
 
 export class GamepadState extends EventTarget {
-  private static get gamepads(): Gamepad[] {
+  private static getGamepads(): Gamepad[] {
     return navigator
       .getGamepads()
       .filter((gamepad): gamepad is Gamepad => gamepad !== null);
   }
 
-  private static async poller(): Promise<void> {
-    if (this.polling === false) return;
+  private static async poll(): Promise<void> {
+    if (this.running === false) return;
 
     await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
-    console.log(this.gamepads);
+    console.log(this.getGamepads());
 
-    await this.poller();
+    await this.poll();
   }
 
   private static start(): void {
-    this.polling = true;
-    this.poller();
+    this.running = true;
+    this.poll();
   }
 
   private static stop(): void {
-    this.polling = false;
+    this.running = false;
   }
 
-  private static polling: boolean = false;
+  private static running: boolean = false;
 
   readonly index: number;
 
@@ -44,11 +44,11 @@ export class GamepadState extends EventTarget {
     this.index = index;
 
     window.addEventListener("gamepadconnected", event => {
-      if (!GamepadState.polling) {
+      if (!GamepadState.running) {
         GamepadState.start();
         this.dispatchEvent(new Event("startpolling"));
       }
-      console.log(GamepadState.gamepads);
+      console.log(GamepadState.getGamepads());
 
       if (event.gamepad.index !== this.index) return;
       const { gamepad } = event;
@@ -56,11 +56,11 @@ export class GamepadState extends EventTarget {
     });
 
     window.addEventListener("gamepaddisconnected", event => {
-      if (GamepadState.gamepads.length === 0) {
+      if (GamepadState.getGamepads().length === 0) {
         GamepadState.stop();
         this.dispatchEvent(new Event("stoppolling"));
       }
-      console.log(GamepadState.gamepads);
+      console.log(GamepadState.getGamepads());
 
       if (event.gamepad.index !== this.index) return;
       const { gamepad } = event;
