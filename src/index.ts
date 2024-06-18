@@ -12,9 +12,6 @@ export class GamepadStateEvent extends Event {
 export class GamepadState extends EventTarget {
   readonly index: number;
 
-  onconnected: ((event: GamepadStateEvent) => any) | null = null;
-  ondisconnected: ((event: GamepadStateEvent) => any) | null = null;
-
   constructor(index: number) {
     super();
 
@@ -32,14 +29,6 @@ export class GamepadState extends EventTarget {
     window.addEventListener("gamepaddisconnected", event => {
       if (event.gamepad.index !== this.index) return;
       this.dispatchEvent(new GamepadStateEvent("disconnected", event.gamepad));
-    });
-
-    this.addEventListener("connected", event => {
-      this.onconnected?.(event);
-    });
-
-    this.addEventListener("disconnected", event => {
-      this.ondisconnected?.(event);
     });
   }
 
