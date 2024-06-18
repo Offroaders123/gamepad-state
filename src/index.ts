@@ -21,6 +21,15 @@ export class GamepadState extends EventTarget {
     await this.poller();
   }
 
+  private static start(): void {
+    this.polling = true;
+    this.poller();
+  }
+
+  private static stop(): void {
+    this.polling = false;
+  }
+
   private static polling: boolean = false;
 
   readonly index: number;
@@ -36,9 +45,8 @@ export class GamepadState extends EventTarget {
 
     window.addEventListener("gamepadconnected", event => {
       if (!GamepadState.polling) {
-        GamepadState.polling = true;
+        GamepadState.start();
         this.dispatchEvent(new Event("startpolling"));
-        GamepadState.poller();
       }
       console.log(GamepadState.gamepads);
 
@@ -49,7 +57,7 @@ export class GamepadState extends EventTarget {
 
     window.addEventListener("gamepaddisconnected", event => {
       if (GamepadState.gamepads.length === 0) {
-        GamepadState.polling = false;
+        GamepadState.stop();
         this.dispatchEvent(new Event("stoppolling"));
       }
       console.log(GamepadState.gamepads);
