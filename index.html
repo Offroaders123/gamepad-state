@@ -10,11 +10,21 @@
 
 <body>
 
-<script type="module">
+<!-- <script type="module">
   import { GamepadState } from "./src/index.ts";
   
   const state = new GamepadState();
   console.log(state);
+</script> -->
+
+<script type="module">
+  import { StateUpdateEvent, StateThing } from "./src/state-thing.ts";
+  
+  const thing = new StateThing();
+  thing.onupdate = event => console.log(event);
+  console.log(thing);
+  
+  thing.update("hiua");
 </script>
 
 </body>

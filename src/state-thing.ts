@@ -6,7 +6,7 @@ export interface StateEventMap {
 }
 
 export class StateUpdateEvent extends Event {
-  constructor(public readonly value: string) {
+  constructor(public value: string) {
     super("update");
   }
 }
@@ -34,7 +34,7 @@ export class StateThing extends EventTarget {
     });
   }
 
-  update(): void {
-    this.dispatchEvent(new Event("update"));
+  update(value: string): void {
+    this.dispatchEvent(new StateUpdateEvent(value));
   }
 }
