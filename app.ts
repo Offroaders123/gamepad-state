@@ -1,6 +1,6 @@
 import { GamepadState } from "./src/index.js";
 
-const state = new GamepadState(0);
+const state = new GamepadState(1);
 console.log(state);
 
 state.addEventListener("connected", function(event) {
@@ -8,6 +8,10 @@ state.addEventListener("connected", function(event) {
 });
 
 state.addEventListener("disconnected", function(event) {
+  console.log(this, event);
+});
+
+state.addEventListener("input", function(event) {
   console.log(this, event);
 });
 
