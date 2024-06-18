@@ -1,12 +1,16 @@
-// import { GamepadState } from "./src/index.js";
+import { GamepadState } from "./src/index.js";
 
-// const state = new GamepadState();
-// console.log(state);
+const state = new GamepadState(0);
+console.log(state);
 
-import { StateUpdateEvent, StateThing } from "./src/state-thing.js";
+state.onconnected = event => {
+  console.log(event);
+};
 
-const thing = new StateThing();
-thing.onupdate = event => console.log(event);
-console.log(thing);
+// import { StateUpdateEvent, StateThing } from "./src/state-thing.js";
 
-thing.update("hiua");
+// const thing = new StateThing();
+// thing.onupdate = event => console.log(event);
+// console.log(thing);
+
+// thing.update("hiua");

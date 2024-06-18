@@ -1,31 +1,57 @@
-export class GamepadState extends EventTarget {
-  private indices = new Set<number>();
+export interface GamepadStateEventMap {
+  "connected": GamepadStateEvent;
+  "disconnected": GamepadStateEvent;
+}
 
-  constructor() {
+export class GamepadStateEvent extends Event {
+  constructor(type: string, public gamepad: Gamepad) {
+    super(type);
+  }
+}
+
+export class GamepadState extends EventTarget {
+  readonly index: number;
+
+  onconnected: ((event: GamepadStateEvent) => any) | null = null;
+  ondisconnected: ((event: GamepadStateEvent) => any) | null = null;
+
+  constructor(index: number) {
     super();
 
+    if (typeof index !== "number") {
+      throw new TypeError("Expected a number as a gamepad index");
+    }
+
+    this.index = index;
+
     window.addEventListener("gamepadconnected", event => {
-      this.add(event.gamepad);
-      this.poll();
+      if (event.gamepad.index !== this.index) return;
+      this.dispatchEvent(new GamepadStateEvent(event.type, event.gamepad));
     });
 
     window.addEventListener("gamepaddisconnected", event => {
-      this.delete(event.gamepad);
+      if (event.gamepad.index !== this.index) return;
+      this.dispatchEvent(new GamepadStateEvent(event.type, event.gamepad));
+    });
+
+    this.addEventListener("connected", event => {
+      this.onconnected?.(event);
+    });
+
+    this.addEventListener("disconnected", event => {
+      this.ondisconnected?.(event);
     });
   }
 
-  private add(gamepad: Gamepad): void {
-    this.indices.add(gamepad.index);
+  override addEventListener<K extends keyof GamepadStateEventMap>(type: K, listener: (this: GamepadState, event: GamepadStateEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+  override addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+  override addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
+    super.addEventListener(type, listener, options);
   }
 
-  private delete(gamepad: Gamepad): void {
-    this.indices.delete(gamepad.index);
-  }
-
-  private poll(): void {
-    console.log("refresh");
-    if (this.indices.size === 0) return;
-
-    requestAnimationFrame(() => this.poll());
+  override removeEventListener<K extends keyof GamepadStateEventMap>(type: K, listener: (this: GamepadState, event: GamepadStateEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+  override removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+  override removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void {
+    super.removeEventListener(type, listener, options);
   }
 }
