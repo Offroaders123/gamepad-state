@@ -11,10 +11,10 @@ state.addEventListener("disconnected", function(event) {
   console.log(this, event);
 });
 
-state.addEventListener("startpolling", function(event) {
+state.addEventListener("start", function(event) {
   console.log(this, event);
 });
 
-state.addEventListener("stoppolling", function(event) {
+state.addEventListener("stop", function(event) {
   console.log(this, event);
 });

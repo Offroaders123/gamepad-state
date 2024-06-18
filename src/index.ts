@@ -1,8 +1,8 @@
 export interface GamepadStateEventMap {
   "connected": GamepadEvent;
   "disconnected": GamepadEvent;
-  "startpolling": Event;
-  "stoppolling": Event;
+  "start": Event;
+  "stop": Event;
 }
 
 export class GamepadState extends EventTarget {
@@ -46,7 +46,7 @@ export class GamepadState extends EventTarget {
     window.addEventListener("gamepadconnected", event => {
       if (!GamepadState.running) {
         GamepadState.start();
-        this.dispatchEvent(new Event("startpolling"));
+        this.dispatchEvent(new Event("start"));
       }
       console.log(GamepadState.getGamepads());
 
@@ -58,7 +58,7 @@ export class GamepadState extends EventTarget {
     window.addEventListener("gamepaddisconnected", event => {
       if (GamepadState.getGamepads().length === 0) {
         GamepadState.stop();
-        this.dispatchEvent(new Event("stoppolling"));
+        this.dispatchEvent(new Event("stop"));
       }
       console.log(GamepadState.getGamepads());
 
