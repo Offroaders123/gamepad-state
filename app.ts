@@ -11,10 +11,10 @@ state.addEventListener("disconnected", event => {
   console.log(event);
 });
 
-// import { StateUpdateEvent, StateThing } from "./src/state-thing.js";
+state.addEventListener("startpolling", event => {
+  console.log(event);
+});
 
-// const thing = new StateThing();
-// thing.onupdate = event => console.log(event);
-// console.log(thing);
-
-// thing.update("hiua");
+state.addEventListener("stoppolling", event => {
+  console.log(event);
+});

@@ -1,6 +1,8 @@
 export interface GamepadStateEventMap {
   "connected": GamepadStateEvent;
   "disconnected": GamepadStateEvent;
+  "startpolling": Event;
+  "stoppolling": Event;
 }
 
 export class GamepadStateEvent extends Event {
@@ -10,6 +12,23 @@ export class GamepadStateEvent extends Event {
 }
 
 export class GamepadState extends EventTarget {
+  private static get gamepads(): Gamepad[] {
+    return navigator
+      .getGamepads()
+      .filter((gamepad): gamepad is Gamepad => gamepad !== null);
+  }
+
+  private static async poller(): Promise<void> {
+    if (this.polling === false) return;
+
+    await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+    console.log(this.gamepads);
+
+    await this.poller();
+  }
+
+  private static polling: boolean = false;
+
   readonly index: number;
 
   constructor(index: number) {
@@ -22,11 +41,24 @@ export class GamepadState extends EventTarget {
     this.index = index;
 
     window.addEventListener("gamepadconnected", event => {
+      if (!GamepadState.polling) {
+        GamepadState.polling = true;
+        this.dispatchEvent(new Event("startpolling"));
+        GamepadState.poller();
+      }
+      console.log(GamepadState.gamepads);
+
       if (event.gamepad.index !== this.index) return;
       this.dispatchEvent(new GamepadStateEvent("connected", event.gamepad));
     });
 
     window.addEventListener("gamepaddisconnected", event => {
+      if (GamepadState.gamepads.length === 0) {
+        GamepadState.polling = false;
+        this.dispatchEvent(new Event("stoppolling"));
+      }
+      console.log(GamepadState.gamepads);
+
       if (event.gamepad.index !== this.index) return;
       this.dispatchEvent(new GamepadStateEvent("disconnected", event.gamepad));
     });
