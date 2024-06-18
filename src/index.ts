@@ -6,10 +6,15 @@ export interface GamepadStateEventMap {
 }
 
 export class GamepadState extends EventTarget {
-  private static getGamepads(): Gamepad[] {
-    return navigator
-      .getGamepads()
-      .filter((gamepad): gamepad is Gamepad => gamepad !== null);
+  private static running: boolean = false;
+
+  private static start(): void {
+    this.running = true;
+    this.poll();
+  }
+
+  private static stop(): void {
+    this.running = false;
   }
 
   private static async poll(): Promise<void> {
@@ -21,16 +26,11 @@ export class GamepadState extends EventTarget {
     await this.poll();
   }
 
-  private static start(): void {
-    this.running = true;
-    this.poll();
+  private static getGamepads(): Gamepad[] {
+    return navigator
+      .getGamepads()
+      .filter((gamepad): gamepad is Gamepad => gamepad !== null);
   }
-
-  private static stop(): void {
-    this.running = false;
-  }
-
-  private static running: boolean = false;
 
   readonly index: number;
 
