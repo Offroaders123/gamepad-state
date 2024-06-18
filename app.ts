@@ -7,6 +7,10 @@ state.onconnected = event => {
   console.log(event);
 };
 
+state.ondisconnected = event => {
+  console.log(event);
+};
+
 // import { StateUpdateEvent, StateThing } from "./src/state-thing.js";
 
 // const thing = new StateThing();

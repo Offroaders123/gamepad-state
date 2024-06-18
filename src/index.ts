@@ -4,7 +4,7 @@ export interface GamepadStateEventMap {
 }
 
 export class GamepadStateEvent extends Event {
-  constructor(type: string, public gamepad: Gamepad) {
+  constructor(type: "connected" | "disconnected", public gamepad: Gamepad) {
     super(type);
   }
 }
@@ -26,12 +26,12 @@ export class GamepadState extends EventTarget {
 
     window.addEventListener("gamepadconnected", event => {
       if (event.gamepad.index !== this.index) return;
-      this.dispatchEvent(new GamepadStateEvent(event.type, event.gamepad));
+      this.dispatchEvent(new GamepadStateEvent("connected", event.gamepad));
     });
 
     window.addEventListener("gamepaddisconnected", event => {
       if (event.gamepad.index !== this.index) return;
-      this.dispatchEvent(new GamepadStateEvent(event.type, event.gamepad));
+      this.dispatchEvent(new GamepadStateEvent("disconnected", event.gamepad));
     });
 
     this.addEventListener("connected", event => {
