@@ -1,0 +1,15 @@
+{
+  "name": "gamepad-state",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc; vite build",
+    "dev": "vite",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.4",
+    "typescript": "^5.4.5",
+    "vite": "^5.3.1"
+  }
+}
