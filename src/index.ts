@@ -9,7 +9,19 @@ export interface GamepadStateEventMap {
 export class GamepadState extends EventTarget {
   private static running: boolean = false;
 
+  private static gamepadIndices: Set<number> = new Set();
+
   private static instances: GamepadState[] = [];
+
+  static {
+    window.addEventListener("gamepadconnected", event => {
+      this.gamepadIndices.add(event.gamepad.index);
+    });
+
+    window.addEventListener("gamepaddisconnected", event => {
+      this.gamepadIndices.delete(event.gamepad.index);
+    });
+  }
 
   private static start(): void {
     this.running = true;
@@ -87,6 +99,10 @@ export class GamepadState extends EventTarget {
   override addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
   override addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
     super.addEventListener(type, listener, options);
+  }
+
+  override dispatchEvent<K extends keyof GamepadStateEventMap>(event: GamepadStateEventMap[K]): boolean {
+    return super.dispatchEvent(event);
   }
 
   override removeEventListener<K extends keyof GamepadStateEventMap>(type: K, listener: (this: GamepadState, event: GamepadStateEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
