@@ -40,7 +40,7 @@ export class GamepadState extends EventTarget {
   private static getGamepads(): Gamepad[] {
     return navigator
       .getGamepads()
-      .filter((gamepad): gamepad is Gamepad => gamepad !== null);
+      .filter(gamepad => gamepad !== null);
   }
 
   readonly index: number;
