@@ -1,5 +1,7 @@
 import { GamepadState } from "./src/index.js";
 
+const running = document.querySelector<HTMLInputElement>("#running")!;
+
 const state = new GamepadState(1);
 console.log(state);
 
@@ -16,9 +18,11 @@ state.addEventListener("input", function(event) {
 });
 
 state.addEventListener("start", function(event) {
-  console.log(this, event);
+  // console.log(this, event);
+  running.checked = true;
 });
 
 state.addEventListener("stop", function(event) {
-  console.log(this, event);
+  // console.log(this, event);
+  running.checked = false;
 });
