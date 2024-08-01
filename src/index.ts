@@ -1,3 +1,47 @@
+let running: boolean = false;
+const gamepadIndices: Set<number> = new Set();
+const stateInstances: GamepadState[] = [];
+
+window.addEventListener("gamepadconnected", event => {
+  gamepadIndices.add(event.gamepad.index);
+});
+
+window.addEventListener("gamepaddisconnected", event => {
+  gamepadIndices.delete(event.gamepad.index);
+});
+
+function start(): void {
+  running = true;
+  poll();
+}
+
+function stop(): void {
+  running = false;
+}
+
+async function poll(): Promise<void> {
+  if (running === false) return;
+  await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+
+  for (const gamepad of getGamepads()) {
+    const instances: GamepadState[] = stateInstances.filter(instance => instance.index === gamepad.index);
+
+    for (const instance of instances) {
+      if (instance.gamepad?.timestamp === gamepad.timestamp) break;
+      instance.gamepad = gamepad;
+      instance.dispatchEvent(new GamepadEvent("input", { gamepad }));
+    }
+  }
+
+  await poll();
+}
+
+function getGamepads(): Gamepad[] {
+  return navigator
+    .getGamepads()
+    .filter(gamepad => gamepad !== null);
+}
+
 export interface GamepadStateEventMap {
   "connected": GamepadEvent;
   "disconnected": GamepadEvent;
@@ -7,54 +51,6 @@ export interface GamepadStateEventMap {
 }
 
 export class GamepadState extends EventTarget {
-  private static running: boolean = false;
-
-  private static gamepadIndices: Set<number> = new Set();
-
-  private static instances: GamepadState[] = [];
-
-  static {
-    window.addEventListener("gamepadconnected", event => {
-      this.gamepadIndices.add(event.gamepad.index);
-    });
-
-    window.addEventListener("gamepaddisconnected", event => {
-      this.gamepadIndices.delete(event.gamepad.index);
-    });
-  }
-
-  private static start(): void {
-    this.running = true;
-    this.poll();
-  }
-
-  private static stop(): void {
-    this.running = false;
-  }
-
-  private static async poll(): Promise<void> {
-    if (this.running === false) return;
-    await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
-
-    for (const gamepad of this.getGamepads()) {
-      const instances: GamepadState[] = this.instances.filter(instance => instance.index === gamepad.index);
-
-      for (const instance of instances) {
-        if (instance.gamepad?.timestamp === gamepad.timestamp) break;
-        instance.gamepad = gamepad;
-        instance.dispatchEvent(new GamepadEvent("input", { gamepad }));
-      }
-    }
-
-    await this.poll();
-  }
-
-  private static getGamepads(): Gamepad[] {
-    return navigator
-      .getGamepads()
-      .filter(gamepad => gamepad !== null);
-  }
-
   readonly index: number;
 
   gamepad: Gamepad | null = null;
@@ -68,7 +64,7 @@ export class GamepadState extends EventTarget {
 
     this.index = index;
 
-    GamepadState.instances.push(this);
+    stateInstances.push(this);
 
     window.addEventListener("gamepadconnected", event => {
       if (event.gamepad.index === this.index) {
@@ -76,8 +72,8 @@ export class GamepadState extends EventTarget {
         this.dispatchEvent(new GamepadEvent("connected", { gamepad }));
       }
 
-      if (!GamepadState.running) {
-        GamepadState.start();
+      if (!running) {
+        start();
         this.dispatchEvent(new Event("start"));
       }
     });
@@ -88,8 +84,8 @@ export class GamepadState extends EventTarget {
         this.dispatchEvent(new GamepadEvent("disconnected", { gamepad }));
       }
 
-      if (GamepadState.getGamepads().length === 0) {
-        GamepadState.stop();
+      if (getGamepads().length === 0) {
+        stop();
         this.dispatchEvent(new Event("stop"));
       }
     });
