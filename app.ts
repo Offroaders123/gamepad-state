@@ -2,15 +2,17 @@ import { GamepadState } from "./src/index.js";
 
 const running = document.querySelector<HTMLInputElement>("#running")!;
 
-const state = new GamepadState(1);
+for (const id of [0, 1, 2]) {
+
+const state = new GamepadState(id);
 console.log(state);
 
 state.addEventListener("connected", function(event) {
-  console.log(this, event);
+  console.log(this, event.gamepad.id);
 });
 
 state.addEventListener("disconnected", function(event) {
-  console.log(this, event);
+  console.log(this, event.gamepad.id);
 });
 
 state.addEventListener("input", function(event) {
@@ -26,3 +28,5 @@ state.addEventListener("stop", function(event) {
   // console.log(this, event);
   running.checked = false;
 });
+
+}
