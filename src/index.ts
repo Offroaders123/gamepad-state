@@ -1,8 +1,8 @@
-export type GamepadObserverType = "connect" | "disconnect" | "input";
+export type GamepadRecordType = "connect" | "disconnect" | "input";
 
 export interface GamepadRecord {
-  type: GamepadObserverType;
-  gamepad: Gamepad;
+  readonly type: GamepadRecordType;
+  readonly gamepad: Gamepad;
 }
 
 export type GamepadObserverCallback = (records: GamepadRecord[], observer: GamepadObserver) => void;
@@ -11,12 +11,16 @@ export class GamepadObserver {
   private running: boolean = false;
   private controller = new AbortController();
   private observed: Set<number> = new Set();
+  private connected: Set<number> = new Set();
   private gamepads: Record<number, Gamepad> = {};
 
   constructor(private readonly callback: GamepadObserverCallback) {
     const { signal } = this.controller;
 
     window.addEventListener("gamepadconnected", event => {
+      if (!this.connected.has(event.gamepad.index)) {
+        this.connected.add(event.gamepad.index);
+      }
       if (!this.observed.has(event.gamepad.index)) return;
       if (this.running === false) {
         this.start();
@@ -26,10 +30,11 @@ export class GamepadObserver {
     }, { signal });
 
     window.addEventListener("gamepaddisconnected", event => {
+      this.connected.delete(event.gamepad.index);
       if (!this.observed.has(event.gamepad.index)) return;
       const { gamepad } = event;
       this.callback([{ type: "disconnect", gamepad }], this);
-      if (this.running === true) {
+      if (this.connected.size > 0 && this.running === true) {
         this.stop();
       }
     }, { signal });
