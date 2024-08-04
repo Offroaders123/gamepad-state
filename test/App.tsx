@@ -1,10 +1,12 @@
+import { createSignal } from "solid-js";
 import { GamepadObserver } from "../src/index.js";
 
-const running = document.querySelector<HTMLInputElement>("#running")!;
-const display0 = document.querySelector<HTMLInputElement>("#display0")!;
-const display1 = document.querySelector<HTMLInputElement>("#display1")!;
-const display2 = document.querySelector<HTMLInputElement>("#display2")!;
-const display3 = document.querySelector<HTMLInputElement>("#display3")!;
+export default function App() {
+  const [getRunning, setRunning] = createSignal<boolean>(false);
+  const [getDisplay0, setDisplay0] = createSignal<number>(0);
+  const [getDisplay1, setDisplay1] = createSignal<number>(0);
+  const [getDisplay2, setDisplay2] = createSignal<number>(0);
+  const [getDisplay3, setDisplay3] = createSignal<number>(0);
 
 const observer = new GamepadObserver((records, observer) => {
   for (const record of records) {
@@ -12,10 +14,10 @@ const observer = new GamepadObserver((records, observer) => {
       case "input": {
         console.log(record.type.toUpperCase(), observer, record.gamepad);
         switch (record.gamepad.index) {
-          case 0: display0.valueAsNumber += 1; break;
-          case 1: display1.valueAsNumber += 1; break;
-          case 2: display2.valueAsNumber += 1; break;
-          case 3: display3.valueAsNumber += 1; break;
+          case 0: setDisplay0(previous => previous + 1); break;
+          case 1: setDisplay1(previous => previous + 1); break;
+          case 2: setDisplay2(previous => previous + 1); break;
+          case 3: setDisplay3(previous => previous + 1); break;
         }
         return;
       }
@@ -29,14 +31,25 @@ const observer = new GamepadObserver((records, observer) => {
 
 observer.onstart = () => {
   console.log("start".toUpperCase(), observer);
-  running.checked = true;
+  setRunning(true);
 };
 
 observer.onstop = () => {
   console.log("stop".toUpperCase(), observer);
-  running.checked = false;
+  setRunning(false);
 };
 
 for (const id of [0, 1, 2, 3] as const) {
   observer.observe(id);
+}
+
+  return (
+    <>
+      <label><input type="checkbox" checked={getRunning()}/>Running</label><br/>
+      <label>0<input type="number" value={getDisplay0()}/></label><br/>
+      <label>1<input type="number" value={getDisplay1()}/></label><br/>
+      <label>2<input type="number" value={getDisplay2()}/></label><br/>
+      <label>3<input type="number" value={getDisplay3()}/></label><br/>
+    </>
+  );
 }
