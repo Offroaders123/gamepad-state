@@ -8,11 +8,11 @@ export default function App() {
   const [getDisplay2, setDisplay2] = createSignal<number>(0);
   const [getDisplay3, setDisplay3] = createSignal<number>(0);
 
-  const observer = new GamepadObserver((records, observer) => {
+  const observer = new GamepadObserver((records, _observer) => {
     for (const record of records) {
       switch (record.type) {
         case "input": {
-          console.log(record.type.toUpperCase(), observer, record.gamepad);
+          console.log(record.type.toUpperCase(), record.gamepad);
           switch (record.gamepad.index) {
             case 0: setDisplay0(previous => previous + 1); break;
             case 1: setDisplay1(previous => previous + 1); break;
@@ -22,7 +22,7 @@ export default function App() {
           return;
         }
         default: {
-          console.log(record.type.toUpperCase(), record.gamepad.id, observer);
+          console.log(record.type.toUpperCase(), record.gamepad.id);
           return;
         }
       }
@@ -30,12 +30,12 @@ export default function App() {
   });
 
   observer.onstart = () => {
-    console.log("start".toUpperCase(), observer);
+    console.log("start".toUpperCase());
     setRunning(true);
   };
 
   observer.onstop = () => {
-    console.log("stop".toUpperCase(), observer);
+    console.log("stop".toUpperCase());
     setRunning(false);
   };
 

@@ -61,14 +61,14 @@ export class GamepadObserver {
     this.poll();
   }
 
-  onstart?: () => void;
+  onstart: (() => void) | null = null;
 
   private stop(): void {
     this.running = false;
     this.onstop?.();
   }
 
-  onstop?: () => void;
+  onstop: (() => void) | null = null;
 
   private async poll(): Promise<void> {
     if (this.running === false) return;
