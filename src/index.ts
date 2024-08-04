@@ -7,30 +7,34 @@ export interface GamepadRecord {
 
 export type GamepadObserverCallback = (records: GamepadRecord[], observer: GamepadObserver) => void;
 
-export class GamepadObserver {
+export class GamepadObserver extends EventTarget {
   private running: boolean = false;
+  private controller = new AbortController();
   private observed: Set<number> = new Set();
   private gamepads: Record<number, Gamepad> = {};
-  private controller = new AbortController();
 
   constructor(private readonly callback: GamepadObserverCallback) {
+    super();
+
     const { signal } = this.controller;
 
     window.addEventListener("gamepadconnected", event => {
-      if (this.observed.has(event.gamepad.index)) {
-        const { gamepad } = event;
-        this.callback([{ type: "connect", gamepad }], this);
+      if (!this.observed.has(event.gamepad.index)) return;
+      if (this.running === false) {
+        this.start();
       }
+      const { gamepad } = event;
+      this.callback([{ type: "connect", gamepad }], this);
     }, { signal });
 
     window.addEventListener("gamepaddisconnected", event => {
-      if (this.observed.has(event.gamepad.index)) {
-        const { gamepad } = event;
-        this.callback([{ type: "disconnect", gamepad }], this);
+      if (!this.observed.has(event.gamepad.index)) return;
+      const { gamepad } = event;
+      this.callback([{ type: "disconnect", gamepad }], this);
+      if (this.running === true) {
+        this.stop();
       }
     }, { signal });
-
-    this.start();
   }
 
   observe(index: number): void {
@@ -43,18 +47,20 @@ export class GamepadObserver {
 
   disconnect(): void {
     this.stop();
+    this.controller.abort();
     this.observed.clear();
     this.gamepads = {};
-    this.controller.abort();
   }
 
   private start(): void {
     this.running = true;
+    this.dispatchEvent(new Event("start"));
     this.poll();
   }
 
   private stop(): void {
     this.running = false;
+    this.dispatchEvent(new Event("stop"));
   }
 
   private async poll(): Promise<void> {

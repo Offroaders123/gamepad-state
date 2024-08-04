@@ -1,5 +1,6 @@
 import { GamepadObserver } from "./src/index.js";
 
+const running = document.querySelector<HTMLInputElement>("#running")!;
 const display0 = document.querySelector<HTMLInputElement>("#display0")!;
 const display1 = document.querySelector<HTMLInputElement>("#display1")!;
 const display2 = document.querySelector<HTMLInputElement>("#display2")!;
@@ -24,6 +25,16 @@ const observer = new GamepadObserver((records, observer) => {
       }
     }
   }
+});
+
+observer.addEventListener("start", function(event) {
+  console.log(event.type.toUpperCase(), this);
+  running.checked = true;
+});
+
+observer.addEventListener("stop", function(event) {
+  console.log(event.type.toUpperCase(), this);
+  running.checked = false;
 });
 
 for (const id of [0, 1, 2, 3] as const) {
