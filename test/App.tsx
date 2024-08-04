@@ -1,5 +1,5 @@
 import { createSignal } from "solid-js";
-import { GamepadObserver } from "../src/index.js";
+import { GamepadObserver } from "../src/observer.js";
 
 export default function App() {
   const [getRunning, setRunning] = createSignal<boolean>(false);
