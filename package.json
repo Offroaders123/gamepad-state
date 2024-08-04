@@ -2,14 +2,15 @@
   "name": "gamepad-state",
   "private": true,
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc; vite build",
-    "dev": "vite",
-    "preview": "vite preview"
+    "build": "tsc --project ./tsconfig.build.json",
+    "dev": "vite ./test"
   },
   "devDependencies": {
-    "@types/node": "^20.14.4",
-    "typescript": "^5.5.2",
-    "vite": "^5.3.1"
+    "@types/node": "^22.1.0",
+    "typescript": "^5.5.4",
+    "vite": "^5.3.5"
   }
 }

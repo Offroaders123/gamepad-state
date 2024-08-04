@@ -1,4 +1,4 @@
-import { GamepadObserver } from "./src/index.js";
+import { GamepadObserver } from "../src/index.js";
 
 const running = document.querySelector<HTMLInputElement>("#running")!;
 const display0 = document.querySelector<HTMLInputElement>("#display0")!;
