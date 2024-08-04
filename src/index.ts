@@ -57,12 +57,18 @@ export class GamepadObserver {
 
   private start(): void {
     this.running = true;
+    this.onstart?.();
     this.poll();
   }
 
+  onstart?: () => void;
+
   private stop(): void {
     this.running = false;
+    this.onstop?.();
   }
+
+  onstop?: () => void;
 
   private async poll(): Promise<void> {
     if (this.running === false) return;

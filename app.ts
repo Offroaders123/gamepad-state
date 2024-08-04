@@ -27,7 +27,15 @@ const observer = new GamepadObserver((records, observer) => {
   }
 });
 
-running.checked = true;
+observer.onstart = () => {
+  console.log("start".toUpperCase(), observer);
+  running.checked = true;
+};
+
+observer.onstop = () => {
+  console.log("stop".toUpperCase(), observer);
+  running.checked = false;
+};
 
 for (const id of [0, 1, 2, 3] as const) {
   observer.observe(id);
