@@ -1,6 +1,6 @@
 let running: boolean = false;
 const gamepadIndices: Set<number> = new Set();
-const stateInstances: GamepadState[] = [];
+const observers: GamepadObserver[] = [];
 
 window.addEventListener("gamepadconnected", event => {
   gamepadIndices.add(event.gamepad.index);
@@ -24,7 +24,7 @@ async function poll(): Promise<void> {
   await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 
   for (const gamepad of getGamepads()) {
-    const instances: GamepadState[] = stateInstances.filter(instance => instance.index === gamepad.index);
+    const instances: GamepadObserver[] = observers.filter(observer => observer.index === gamepad.index);
 
     for (const instance of instances) {
       if (instance.gamepad?.timestamp === gamepad.timestamp) break;
@@ -42,68 +42,36 @@ function getGamepads(): Gamepad[] {
     .filter(gamepad => gamepad !== null);
 }
 
-export interface GamepadStateEventMap {
-  "connected": GamepadEvent;
-  "disconnected": GamepadEvent;
-  "input": GamepadEvent;
-  "start": Event;
-  "stop": Event;
+export type GamepadObserverCallback = (entries: GamepadObserverEntry[], observer: GamepadObserver) => void;
+
+export interface GamepadObserverEntry {
+  type: GamepadObserverEntryType;
+  index: number;
+  gamepad: Gamepad;
 }
 
-export class GamepadState extends EventTarget {
-  readonly index: number;
+export class GamepadObserver {
+  #indices: number[] = [];
 
-  gamepad: Gamepad | null = null;
+  constructor(callback: GamepadObserverCallback) {
+    callback([], this);
+  }
 
-  constructor(index: number) {
-    super();
+  disconnect(): void {}
 
+  observe(index: number): void {
     if (typeof index !== "number") {
       throw new TypeError("Expected a number as a gamepad index");
     }
 
-    this.index = index;
-
-    stateInstances.push(this);
-
-    window.addEventListener("gamepadconnected", event => {
-      if (event.gamepad.index === this.index) {
-        const { gamepad } = event;
-        this.dispatchEvent(new GamepadEvent("connected", { gamepad }));
-      }
-
-      if (!running) {
-        start();
-        this.dispatchEvent(new Event("start"));
-      }
-    });
-
-    window.addEventListener("gamepaddisconnected", event => {
-      if (event.gamepad.index === this.index) {
-        const { gamepad } = event;
-        this.dispatchEvent(new GamepadEvent("disconnected", { gamepad }));
-      }
-
-      if (getGamepads().length === 0) {
-        stop();
-        this.dispatchEvent(new Event("stop"));
-      }
-    });
+    this.#indices.push(index);
   }
 
-  override addEventListener<K extends keyof GamepadStateEventMap>(type: K, listener: (this: GamepadState, event: GamepadStateEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-  override addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-  override addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
-    super.addEventListener(type, listener, options);
-  }
-
-  override dispatchEvent<K extends keyof GamepadStateEventMap>(event: GamepadStateEventMap[K]): boolean {
-    return super.dispatchEvent(event);
-  }
-
-  override removeEventListener<K extends keyof GamepadStateEventMap>(type: K, listener: (this: GamepadState, event: GamepadStateEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-  override removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
-  override removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void {
-    super.removeEventListener(type, listener, options);
+  unobserve(index: number): void {
+    if (typeof index !== "number") {
+      throw new TypeError("Expected a number as a gamepad index");
+    }
   }
 }
+
+export type GamepadObserverEntryType = "connected" | "disconnected" | "input" | "start" | "stop";
