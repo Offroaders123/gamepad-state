@@ -8,25 +8,29 @@ export interface GamepadObserverEntry {
 export type GamepadObserverCallback = (entry: GamepadObserverEntry, observer: GamepadObserver) => void;
 
 export class GamepadObserver {
+  private running: boolean = false;
   private observed: Set<number> = new Set();
+  private gamepads: Record<number, Gamepad> = {};
   private controller = new AbortController();
 
-  constructor(callback: GamepadObserverCallback) {
+  constructor(private readonly callback: GamepadObserverCallback) {
     const { signal } = this.controller;
 
     window.addEventListener("gamepadconnected", event => {
       if (this.observed.has(event.gamepad.index)) {
         const { gamepad } = event;
-        callback({ type: "connect", gamepad }, this);
+        this.callback({ type: "connect", gamepad }, this);
       }
     }, { signal });
 
     window.addEventListener("gamepaddisconnected", event => {
       if (this.observed.has(event.gamepad.index)) {
         const { gamepad } = event;
-        callback({ type: "disconnect", gamepad }, this);
+        this.callback({ type: "disconnect", gamepad }, this);
       }
     }, { signal });
+
+    this.start();
   }
 
   observe(index: number): void {
@@ -38,21 +42,35 @@ export class GamepadObserver {
   }
 
   disconnect(): void {
+    this.stop();
     this.observed.clear();
+    this.gamepads = {};
     this.controller.abort();
   }
 
+  private start(): void {
+    this.running = true;
+    this.poll();
+  }
+
+  private stop(): void {
+    this.running = false;
+  }
+
   private async poll(): Promise<void> {
+    if (this.running === false) return;
     await new Promise<number>(requestAnimationFrame);
 
     for (const gamepad of navigator.getGamepads()) {
       if (gamepad === null || !this.observed.has(gamepad.index)) continue;
+
+      const previousGamepad = this.gamepads[gamepad.index];
+      if (previousGamepad?.timestamp === gamepad.timestamp) continue;
+
+      this.gamepads[gamepad.index] = gamepad;
+      this.callback({ type: "input", gamepad }, this);
     }
 
     await this.poll();
   }
 }
-
-const observer = new GamepadObserver((entry, observer) => {
-
-});
