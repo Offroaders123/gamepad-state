@@ -5,21 +5,23 @@ const display1 = document.querySelector<HTMLInputElement>("#display1")!;
 const display2 = document.querySelector<HTMLInputElement>("#display2")!;
 const display3 = document.querySelector<HTMLInputElement>("#display3")!;
 
-const observer = new GamepadObserver((entry, observer) => {
-  switch (entry.type) {
-    case "input": {
-      console.log(entry.type.toUpperCase(), observer, entry.gamepad);
-      switch (entry.gamepad.index) {
-        case 0: display0.valueAsNumber += 1; break;
-        case 1: display1.valueAsNumber += 1; break;
-        case 2: display2.valueAsNumber += 1; break;
-        case 3: display3.valueAsNumber += 1; break;
+const observer = new GamepadObserver((records, observer) => {
+  for (const record of records) {
+    switch (record.type) {
+      case "input": {
+        console.log(record.type.toUpperCase(), observer, record.gamepad);
+        switch (record.gamepad.index) {
+          case 0: display0.valueAsNumber += 1; break;
+          case 1: display1.valueAsNumber += 1; break;
+          case 2: display2.valueAsNumber += 1; break;
+          case 3: display3.valueAsNumber += 1; break;
+        }
+        return;
       }
-      return;
-    }
-    default: {
-      console.log(entry.type.toUpperCase(), entry.gamepad.id, observer);
-      return;
+      default: {
+        console.log(record.type.toUpperCase(), record.gamepad.id, observer);
+        return;
+      }
     }
   }
 });

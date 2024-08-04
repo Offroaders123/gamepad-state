@@ -1,11 +1,11 @@
 export type GamepadObserverType = "connect" | "disconnect" | "input";
 
-export interface GamepadObserverEntry {
+export interface GamepadRecord {
   type: GamepadObserverType;
   gamepad: Gamepad;
 }
 
-export type GamepadObserverCallback = (entry: GamepadObserverEntry, observer: GamepadObserver) => void;
+export type GamepadObserverCallback = (records: GamepadRecord[], observer: GamepadObserver) => void;
 
 export class GamepadObserver {
   private running: boolean = false;
@@ -19,14 +19,14 @@ export class GamepadObserver {
     window.addEventListener("gamepadconnected", event => {
       if (this.observed.has(event.gamepad.index)) {
         const { gamepad } = event;
-        this.callback({ type: "connect", gamepad }, this);
+        this.callback([{ type: "connect", gamepad }], this);
       }
     }, { signal });
 
     window.addEventListener("gamepaddisconnected", event => {
       if (this.observed.has(event.gamepad.index)) {
         const { gamepad } = event;
-        this.callback({ type: "disconnect", gamepad }, this);
+        this.callback([{ type: "disconnect", gamepad }], this);
       }
     }, { signal });
 
@@ -68,7 +68,7 @@ export class GamepadObserver {
       if (previousGamepad?.timestamp === gamepad.timestamp) continue;
 
       this.gamepads[gamepad.index] = gamepad;
-      this.callback({ type: "input", gamepad }, this);
+      this.callback([{ type: "input", gamepad }], this);
     }
 
     await this.poll();
