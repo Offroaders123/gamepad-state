@@ -8,7 +8,7 @@ const display3 = document.querySelector<HTMLInputElement>("#display3")!;
 const observer = new GamepadObserver((entry, observer) => {
   switch (entry.type) {
     case "input": {
-      console.log(observer, entry);
+      console.log(entry.type.toUpperCase(), observer, entry.gamepad);
       switch (entry.gamepad.index) {
         case 0: display0.valueAsNumber += 1; break;
         case 1: display1.valueAsNumber += 1; break;
