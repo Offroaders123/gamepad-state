@@ -7,15 +7,13 @@ export interface GamepadRecord {
 
 export type GamepadObserverCallback = (records: GamepadRecord[], observer: GamepadObserver) => void;
 
-export class GamepadObserver extends EventTarget {
+export class GamepadObserver {
   private running: boolean = false;
   private controller = new AbortController();
   private observed: Set<number> = new Set();
   private gamepads: Record<number, Gamepad> = {};
 
   constructor(private readonly callback: GamepadObserverCallback) {
-    super();
-
     const { signal } = this.controller;
 
     window.addEventListener("gamepadconnected", event => {
@@ -54,13 +52,11 @@ export class GamepadObserver extends EventTarget {
 
   private start(): void {
     this.running = true;
-    this.dispatchEvent(new Event("start"));
     this.poll();
   }
 
   private stop(): void {
     this.running = false;
-    this.dispatchEvent(new Event("stop"));
   }
 
   private async poll(): Promise<void> {
