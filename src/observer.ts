@@ -32,6 +32,8 @@ export class GamepadObserver {
 
     this.state.onstop = () => this.onstop?.();
 
+    this.state.onpoll = () => this.onpoll?.();
+
     this.state.oninput = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
       this.callback({ type: "input", gamepad });
@@ -42,6 +44,7 @@ export class GamepadObserver {
 
   onstart: typeof this.state.onstart = null;
   onstop: typeof this.state.onstop = null;
+  onpoll: typeof this.state.onpoll = null;
 
   observe(index: number): void {
     this.observed.add(index);

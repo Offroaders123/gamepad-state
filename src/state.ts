@@ -66,9 +66,12 @@ export class GamepadState implements Disposable {
     }
 
     await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+    this.onpoll?.();
 
     return this.poll();
   }
+
+  onpoll: (() => void) | null = null;
 
   private input(gamepad: Gamepad): void {
     this.gamepads[gamepad.index] = gamepad;
