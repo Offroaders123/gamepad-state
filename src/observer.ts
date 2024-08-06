@@ -9,19 +9,40 @@ export interface GamepadRecord {
 
 export type GamepadObserverCallback = (records: GamepadRecord[], observer: GamepadObserver) => void;
 
+function debouncePool(callback: GamepadObserverCallback, observer: GamepadObserver): (record: GamepadRecord) => void {
+  let pool: GamepadRecord[] = [];
+  let id: number | null = null;
+
+  return record => {
+    if (id !== null) {
+      pool.push(record);
+      console.log(`Added to pool`, record.type, record.gamepad);
+      return;
+    }
+
+    id = requestAnimationFrame(() => {
+      callback(pool, observer);
+      pool = [];
+      id = null;
+    });
+  };
+}
+
 export class GamepadObserver {
   private state = new GamepadState();
   private observed: Set<number> = new Set();
 
-  constructor(private readonly callback: GamepadObserverCallback) {
+  constructor(callback: GamepadObserverCallback) {
+    this.callback = debouncePool(callback, this);
+
     this.state.onconnect = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
-      this.callback([{ type: "connect", gamepad }], this);
+      this.callback({ type: "connect", gamepad });
     }
 
     this.state.ondisconnect = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
-      this.callback([{ type: "disconnect", gamepad }], this);
+      this.callback({ type: "disconnect", gamepad });
     }
 
     this.state.onstart = () => this.onstart?.();
@@ -30,9 +51,11 @@ export class GamepadObserver {
 
     this.state.oninput = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
-      this.callback([{ type: "input", gamepad }], this);
+      this.callback({ type: "input", gamepad });
     }
   }
+
+  callback: ReturnType<typeof debouncePool>;
 
   onstart: typeof this.state.onstart = null;
   onstop: typeof this.state.onstop = null;
