@@ -10,12 +10,12 @@ export default function App() {
 
   const observer = new GamepadObserver((records, _observer) => {
     console.log(...records);
-    return;
+    // return;
 
     for (const record of records) {
       switch (record.type) {
         case "input": {
-          console.log(record.type.toUpperCase(), record.gamepad);
+          // console.log(record.type.toUpperCase(), record.gamepad);
           switch (record.gamepad.index) {
             case 0: setDisplay0(previous => previous + 1); break;
             case 1: setDisplay1(previous => previous + 1); break;
@@ -25,7 +25,7 @@ export default function App() {
           return;
         }
         default: {
-          console.log(record.type.toUpperCase(), record.gamepad.id);
+          // console.log(record.type.toUpperCase(), record.gamepad.id);
           return;
         }
       }
