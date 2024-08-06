@@ -55,7 +55,6 @@ export class GamepadState implements Disposable {
 
   private async poll(): Promise<void> {
     if (!this.polling) return;
-    await new Promise<number>(requestAnimationFrame);
 
     for (const current of navigator.getGamepads()) {
       if (current === null) continue;
@@ -66,7 +65,9 @@ export class GamepadState implements Disposable {
       this.input(current);
     }
 
-    await this.poll();
+    await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+
+    return this.poll();
   }
 
   private input(gamepad: Gamepad): void {
