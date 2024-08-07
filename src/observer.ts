@@ -21,12 +21,12 @@ export class GamepadObserver {
     this.state.onconnect = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
       this.callback({ type: "connect", gamepad });
-    }
+    };
 
     this.state.ondisconnect = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
       this.callback({ type: "disconnect", gamepad });
-    }
+    };
 
     this.state.onstart = () => this.onstart?.();
 
@@ -37,10 +37,10 @@ export class GamepadObserver {
     this.state.oninput = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
       this.callback({ type: "input", gamepad });
-    }
+    };
   }
 
-  callback: (record: GamepadRecord) => void;
+  private callback: (record: GamepadRecord) => void;
 
   onstart: typeof this.state.onstart = null;
   onstop: typeof this.state.onstop = null;
