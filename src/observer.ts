@@ -32,7 +32,7 @@ export class GamepadObserver {
 
     this.state.onstop = () => this.onstop?.();
 
-    this.state.onpoll = () => this.onpoll?.();
+    this.state.onpoll = frame => this.onpoll?.(frame);
 
     this.state.oninput = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
