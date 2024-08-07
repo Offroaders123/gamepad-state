@@ -9,14 +9,20 @@ export interface GamepadRecord {
 
 export type GamepadObserverCallback = (records: GamepadRecord[], observer: GamepadObserver) => void;
 
+function debouncePool(callback: GamepadObserverCallback, observer: GamepadObserver): (record: GamepadRecord) => void {
+  let pool: GamepadRecord[] = [];
+
+  return record => {
+    callback([record], observer);
+  };
+}
+
 export class GamepadObserver {
   private state = new GamepadState();
   private observed: Set<number> = new Set();
 
   constructor(callback: GamepadObserverCallback) {
-    this.callback = gamepad => {
-      callback([gamepad], this);
-    };
+    this.callback = debouncePool(callback, this);
 
     this.state.onconnect = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
