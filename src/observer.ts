@@ -30,8 +30,10 @@ export class GamepadObserver {
 
     this.state.onstop = () => this.onstop?.();
 
-    this.state.onpoll = frame => {
+    this.state.onpoll = async frame => {
       this.onpoll?.(frame);
+      if (this.pool.length === 0) return;
+      await frame;
 
       this.callback(this.pool, this);
       this.pool = [];

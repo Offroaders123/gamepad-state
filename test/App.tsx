@@ -9,7 +9,7 @@ export default function App() {
   const [getDisplay3, setDisplay3] = createSignal<number>(0);
 
   const observer = new GamepadObserver((records, _observer) => {
-    console.log(...records);
+    console.log(records);
     // return;
 
     for (const record of records) {
