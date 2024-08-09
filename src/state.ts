@@ -58,14 +58,18 @@ export class GamepadState implements Disposable {
       return;
     }
 
+    const refreshed: Gamepad[] = [];
+
     for (const current of navigator.getGamepads()) {
       if (current === null) continue;
 
       const previous = this.gamepads[current.index];
       if (previous?.timestamp === current.timestamp) continue;
 
-      this.input(current);
+      refreshed.push(current);
     }
+
+    if (refreshed.length > 0) this.input(refreshed);
 
     const frame: Promise<void> = new Promise(resolve => requestAnimationFrame(() => resolve()));
     this.onpoll?.(frame);
@@ -76,12 +80,14 @@ export class GamepadState implements Disposable {
 
   onpoll: ((frame: Promise<void>) => void) | null = null;
 
-  private input(gamepad: Gamepad): void {
-    this.gamepads[gamepad.index] = gamepad;
-    this.oninput?.(gamepad);
+  private input(gamepads: Gamepad[]): void {
+    for (const gamepad of gamepads) {
+      this.gamepads[gamepad.index] = gamepad;
+    }
+    this.oninput?.(gamepads);
   }
 
-  oninput: ((gamepad: Gamepad) => void) | null = null;
+  oninput: ((gamepads: Gamepad[]) => void) | null = null;
 
   dispose(): void {
     this.stop();
