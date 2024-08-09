@@ -8,11 +8,11 @@ export class GamepadState implements Disposable {
     const { signal } = this.controller;
 
     window.addEventListener("gamepadconnected", event => {
+      this.connect(event.gamepad);
+
       if (!this.polling) {
         this.start();
       }
-
-      this.connect(event.gamepad);
     }, { signal });
 
     window.addEventListener("gamepaddisconnected", event => {
@@ -48,13 +48,15 @@ export class GamepadState implements Disposable {
 
   private stop(): void {
     this.polling = false;
-    this.onstop?.();
   }
 
   onstop: (() => void) | null = null;
 
   private async poll(): Promise<void> {
-    if (!this.polling) return;
+    if (!this.polling) {
+      this.onstop?.();
+      return;
+    }
 
     for (const current of navigator.getGamepads()) {
       if (current === null) continue;
