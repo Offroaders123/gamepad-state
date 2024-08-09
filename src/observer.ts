@@ -11,37 +11,28 @@ export type GamepadObserverCallback = (records: GamepadRecord[], observer: Gamep
 
 export class GamepadObserver {
   private state = new GamepadState();
-  private pool: GamepadRecord[] = [];
   private observed: Set<number> = new Set();
 
   constructor(private readonly callback: GamepadObserverCallback) {
-
     this.state.onconnect = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
-      this.pool.push({ type: "connect", gamepad });
+      this.callback([{ type: "connect", gamepad }], this);
     };
 
     this.state.ondisconnect = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
-      this.pool.push({ type: "disconnect", gamepad });
+      this.callback([{ type: "disconnect", gamepad }], this);
     };
 
     this.state.onstart = () => this.onstart?.();
 
     this.state.onstop = () => this.onstop?.();
 
-    this.state.onpoll = async frame => {
-      this.onpoll?.(frame);
-      if (this.pool.length === 0) return;
-      await frame;
-
-      this.callback(this.pool, this);
-      this.pool = [];
-    };
+    this.state.onpoll = frame => this.onpoll?.(frame);
 
     this.state.oninput = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
-      this.pool.push({ type: "input", gamepad });
+      this.callback([{ type: "input", gamepad }], this);
     };
   }
 
