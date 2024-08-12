@@ -2,9 +2,18 @@ import { GamepadState } from "./state.js";
 
 export type GamepadRecordType = "connect" | "disconnect" | "input";
 
-export interface GamepadRecord {
+export interface GamepadRecordOptions {
+  gamepad: Gamepad;
+}
+
+export class GamepadRecord {
   readonly type: GamepadRecordType;
   readonly gamepad: Gamepad;
+
+  constructor(type: GamepadRecordType, options: GamepadRecordOptions) {
+    this.type = type;
+    this.gamepad = options.gamepad;
+  }
 }
 
 export type GamepadObserverCallback = (record: GamepadRecord, observer: GamepadObserver) => void;
@@ -19,12 +28,14 @@ export class GamepadObserver {
 
     this.#state.onconnect = gamepad => {
       if (!this.#observed.has(gamepad.index)) return;
-      this.#callback({ type: "connect", gamepad }, this);
+      const record = new GamepadRecord("connect", { gamepad });
+      this.#callback(record, this);
     };
 
     this.#state.ondisconnect = gamepad => {
       if (!this.#observed.has(gamepad.index)) return;
-      this.#callback({ type: "disconnect", gamepad }, this);
+      const record = new GamepadRecord("disconnect", { gamepad });
+      this.#callback(record, this);
     };
 
     this.#state.onstart = () => this.onstart?.();
@@ -35,7 +46,8 @@ export class GamepadObserver {
 
     this.#state.oninput = gamepad => {
       if (!this.#observed.has(gamepad.index)) return;
-      this.#callback({ type: "input", gamepad }, this);
+      const record = new GamepadRecord("input", { gamepad });
+      this.#callback(record, this);
     };
   }
 
