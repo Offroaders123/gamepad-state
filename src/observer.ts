@@ -10,8 +10,8 @@ export interface GamepadRecord {
 export type GamepadObserverCallback = (record: GamepadRecord, observer: GamepadObserver) => void;
 
 export class GamepadObserver {
-  private state = new GamepadState();
-  private observed: Set<number> = new Set();
+  private readonly state = new GamepadState();
+  private readonly observed: Set<number> = new Set();
 
   constructor(private readonly callback: GamepadObserverCallback) {
     this.state.onconnect = gamepad => {

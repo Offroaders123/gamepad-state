@@ -1,7 +1,7 @@
 export class GamepadState implements Disposable {
   private polling: boolean = false;
-  private controller = new AbortController();
-  private connected: Set<number> = new Set();
+  private readonly controller = new AbortController();
+  private readonly connected: Set<number> = new Set();
   private timestamps: Record<number, number> = {};
 
   constructor() {
