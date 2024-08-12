@@ -18,7 +18,7 @@ export class GamepadState implements Disposable {
     window.addEventListener("gamepaddisconnected", event => {
       this.disconnect(event.gamepad);
 
-      if (this.connected.size > 0 && this.polling) {
+      if (this.connected.size === 0 && this.polling) {
         this.stop();
       }
     }, { signal });
