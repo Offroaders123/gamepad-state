@@ -7,7 +7,7 @@ export interface GamepadRecord {
   readonly gamepad: Gamepad;
 }
 
-export type GamepadObserverCallback = (records: GamepadRecord[], observer: GamepadObserver) => void;
+export type GamepadObserverCallback = (record: GamepadRecord, observer: GamepadObserver) => void;
 
 export class GamepadObserver {
   private state = new GamepadState();
@@ -16,12 +16,12 @@ export class GamepadObserver {
   constructor(private readonly callback: GamepadObserverCallback) {
     this.state.onconnect = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
-      this.callback([{ type: "connect", gamepad }], this);
+      this.callback({ type: "connect", gamepad }, this);
     };
 
     this.state.ondisconnect = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
-      this.callback([{ type: "disconnect", gamepad }], this);
+      this.callback({ type: "disconnect", gamepad }, this);
     };
 
     this.state.onstart = () => this.onstart?.();
@@ -32,7 +32,7 @@ export class GamepadObserver {
 
     this.state.oninput = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
-      this.callback([{ type: "input", gamepad }], this);
+      this.callback({ type: "input", gamepad }, this);
     };
   }
 

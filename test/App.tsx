@@ -8,11 +8,10 @@ export default function App() {
   const [getDisplay2, setDisplay2] = createSignal<number>(0);
   const [getDisplay3, setDisplay3] = createSignal<number>(0);
 
-  const observer = new GamepadObserver((records, _observer) => {
-    console.log(...records);
+  const observer = new GamepadObserver((record, _observer) => {
+    console.log(record);
     // return;
 
-    for (const record of records) {
       switch (record.type) {
         case "input": {
           // console.log(record.type.toUpperCase(), record.gamepad);
@@ -29,7 +28,6 @@ export default function App() {
           return;
         }
       }
-    }
   });
 
   observer.onstart = () => {
