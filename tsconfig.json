@@ -3,7 +3,13 @@
     "module": "NodeNext",
     "target": "ESNext",
     "isolatedModules": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "types": [
+      "vite/client"
+    ],
     "noEmit": true,
+    "skipLibCheck": true,
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
