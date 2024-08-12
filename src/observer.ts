@@ -12,8 +12,11 @@ export type GamepadObserverCallback = (record: GamepadRecord, observer: GamepadO
 export class GamepadObserver {
   private readonly state = new GamepadState();
   private readonly observed: Set<number> = new Set();
+  private readonly callback: GamepadObserverCallback;
 
-  constructor(private readonly callback: GamepadObserverCallback) {
+  constructor(callback: GamepadObserverCallback) {
+    this.callback = callback;
+
     this.state.onconnect = gamepad => {
       if (!this.observed.has(gamepad.index)) return;
       this.callback({ type: "connect", gamepad }, this);
