@@ -61,7 +61,7 @@ export class GamepadState implements Disposable {
     for (const current of navigator.getGamepads()) {
       if (current === null) continue;
 
-      const previous = this.#timestamps.get(current.index);
+      const previous: number | undefined = this.#timestamps.get(current.index);
       if (previous === current.timestamp) continue;
 
       this.#input(current);
