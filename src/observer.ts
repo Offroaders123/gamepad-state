@@ -20,7 +20,7 @@ export type GamepadObserverCallback = (record: GamepadRecord, observer: GamepadO
 
 export class GamepadObserver {
   readonly #state = new GamepadState();
-  readonly #observed: Set<number> = new Set();
+  readonly #observed = new Set<number>();
   readonly #callback: GamepadObserverCallback;
 
   constructor(callback: GamepadObserverCallback) {

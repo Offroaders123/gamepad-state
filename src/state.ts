@@ -1,8 +1,8 @@
 export class GamepadState implements Disposable {
   #polling: boolean = false;
   readonly #controller = new AbortController();
-  readonly #connected: Set<number> = new Set();
-  #timestamps: Record<number, number> = {};
+  readonly #connected = new Set<number>();
+  readonly #timestamps = new Map<number, number>();
 
   constructor() {
     const { signal } = this.#controller;
@@ -61,7 +61,7 @@ export class GamepadState implements Disposable {
     for (const current of navigator.getGamepads()) {
       if (current === null) continue;
 
-      const previous = this.#timestamps[current.index];
+      const previous = this.#timestamps.get(current.index);
       if (previous === current.timestamp) continue;
 
       this.#input(current);
@@ -76,7 +76,7 @@ export class GamepadState implements Disposable {
   onpoll: (() => void) | null = null;
 
   #input(gamepad: Gamepad): void {
-    this.#timestamps[gamepad.index] = gamepad.timestamp;
+    this.#timestamps.set(gamepad.index, gamepad.timestamp);
     this.oninput?.(gamepad);
   }
 
@@ -85,7 +85,7 @@ export class GamepadState implements Disposable {
   dispose(): void {
     this.#stop();
     this.#controller.abort();
-    this.#timestamps = {};
+    this.#timestamps.clear();
   }
 
   [Symbol.dispose](): void {
