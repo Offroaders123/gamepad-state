@@ -1,8 +1,14 @@
+export type Gamepads = [(Gamepad | null)?, (Gamepad | null)?, (Gamepad | null)?, (Gamepad | null)?];
+
+export type GamepadIndex = Extract<keyof Gamepads, `${number}`> extends `${infer U extends number}` ? U : never;
+
+export type GamepadTimestamps = { [K in GamepadIndex]?: number; };
+
 export class GamepadState implements Disposable {
   #polling: boolean = false;
   readonly #controller = new AbortController();
-  readonly #connected: Set<number> = new Set();
-  #timestamps: Record<number, number> = {};
+  readonly #connected: Set<GamepadIndex> = new Set();
+  #timestamps: GamepadTimestamps = {};
 
   constructor() {
     const { signal } = this.#controller;
@@ -25,14 +31,14 @@ export class GamepadState implements Disposable {
   }
 
   #connect(gamepad: Gamepad): void {
-    this.#connected.add(gamepad.index);
+    this.#connected.add(gamepad.index as GamepadIndex);
     this.onconnect?.(gamepad);
   }
 
   onconnect: ((gamepad: Gamepad) => void) | null = null;
 
   #disconnect(gamepad: Gamepad): void {
-    this.#connected.delete(gamepad.index);
+    this.#connected.delete(gamepad.index as GamepadIndex);
     this.ondisconnect?.(gamepad);
   }
 
@@ -58,10 +64,10 @@ export class GamepadState implements Disposable {
       return;
     }
 
-    for (const current of navigator.getGamepads()) {
-      if (current === null) continue;
+    for (const current of navigator.getGamepads() as Gamepads) {
+      if (current === null || current === undefined) continue;
 
-      const previous = this.#timestamps[current.index];
+      const previous = this.#timestamps[current.index as GamepadIndex];
       if (previous === current.timestamp) continue;
 
       this.#input(current);
@@ -77,7 +83,7 @@ export class GamepadState implements Disposable {
   onpoll: ((frame: Promise<void>) => void) | null = null;
 
   #input(gamepad: Gamepad): void {
-    this.#timestamps[gamepad.index] = gamepad.timestamp;
+    this.#timestamps[gamepad.index as GamepadIndex] = gamepad.timestamp;
     this.oninput?.(gamepad);
   }
 
