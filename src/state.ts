@@ -67,14 +67,13 @@ export class GamepadState implements Disposable {
       this.#input(current);
     }
 
-    const frame: Promise<void> = new Promise(resolve => requestAnimationFrame(() => resolve()));
-    this.onpoll?.(frame);
-    await frame;
+    this.onpoll?.();
+    await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 
     return this.#poll();
   }
 
-  onpoll: ((frame: Promise<void>) => void) | null = null;
+  onpoll: (() => void) | null = null;
 
   #input(gamepad: Gamepad): void {
     this.#timestamps[gamepad.index] = gamepad.timestamp;
