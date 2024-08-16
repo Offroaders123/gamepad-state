@@ -65,6 +65,7 @@ export class GamepadObserver implements Disposable {
 
   disconnect(): void {
     this.#state.dispose();
+    console.log("DISPOSED!!");
   }
 
   [Symbol.dispose](): void {
