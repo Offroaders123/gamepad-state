@@ -9,24 +9,20 @@ export class GamepadState implements Disposable {
 
     window.addEventListener("gamepadconnected", event => {
       this.#connect(event.gamepad);
-
-      if (!this.#polling) {
-        this.#start();
-      }
     }, { signal });
 
     window.addEventListener("gamepaddisconnected", event => {
       this.#disconnect(event.gamepad);
-
-      if (this.#connected.size === 0 && this.#polling) {
-        this.#stop();
-      }
     }, { signal });
   }
 
   #connect(gamepad: Gamepad): void {
     this.#connected.add(gamepad.index);
     this.onconnect?.(gamepad);
+
+    if (!this.#polling) {
+      this.#start();
+    }
   }
 
   onconnect: ((gamepad: Gamepad) => void) | null = null;
@@ -34,6 +30,10 @@ export class GamepadState implements Disposable {
   #disconnect(gamepad: Gamepad): void {
     this.#connected.delete(gamepad.index);
     this.ondisconnect?.(gamepad);
+
+    if (this.#connected.size === 0 && this.#polling) {
+      this.#stop();
+    }
   }
 
   ondisconnect: ((gamepad: Gamepad) => void) | null = null;
