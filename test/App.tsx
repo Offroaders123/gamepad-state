@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, onCleanup } from "solid-js";
 import { GamepadObserver } from "../src/index.js";
 
 export default function App() {
@@ -43,6 +43,10 @@ export default function App() {
   for (const id of [0, 1, 2, 3] as const) {
     observer.observe(id);
   }
+
+  onCleanup(() => {
+    observer.disconnect();
+  });
 
   return (
     <>

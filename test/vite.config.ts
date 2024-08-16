@@ -14,9 +14,5 @@ export default defineConfig({
     port: 5500,
     strictPort: true
   },
-  plugins: [
-    solid({
-      hot: false
-    })
-  ]
+  plugins: [solid()]
 });
