@@ -7,12 +7,12 @@ export class GamepadState implements Disposable {
   constructor() {
     const { signal } = this.#controller;
 
-    console.log(navigator.getGamepads());
-
-    for (const gamepad of navigator.getGamepads()) {
-      if (gamepad === null) continue;
-      this.#connect(gamepad);
-    }
+    queueMicrotask(() => {
+      for (const gamepad of navigator.getGamepads()) {
+        if (gamepad === null) continue;
+        this.#connect(gamepad);
+      }
+    });
 
     window.addEventListener("gamepadconnected", event => {
       this.#connect(event.gamepad);
