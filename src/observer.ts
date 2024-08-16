@@ -18,7 +18,7 @@ export class GamepadRecord {
 
 export type GamepadObserverCallback = (record: GamepadRecord, observer: GamepadObserver) => void;
 
-export class GamepadObserver {
+export class GamepadObserver implements Disposable {
   readonly #state = new GamepadState();
   readonly #observed = new Set<number>();
   readonly #callback: GamepadObserverCallback;
@@ -65,5 +65,9 @@ export class GamepadObserver {
 
   disconnect(): void {
     this.#state.dispose();
+  }
+
+  [Symbol.dispose](): void {
+    this.disconnect();
   }
 }
